@@ -1,0 +1,35 @@
+.viewSection {
+  animation: fadeIn 0.4s ease-out;
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sectionHeader {
+  margin-bottom: 24px;
+}
+
+.sectionHeader h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.layoutContainer {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.rightContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .layoutContainer {
+    grid-template-columns: 1fr;
+  }
+}

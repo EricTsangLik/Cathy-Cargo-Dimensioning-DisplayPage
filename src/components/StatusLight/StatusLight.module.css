@@ -1,0 +1,54 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusLight {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.ok {
+  background-color: var(--accent);
+  border-color: rgba(40, 167, 69, 0.4);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.warning {
+  background-color: var(--warning);
+  border-color: rgba(255, 193, 7, 0.4);
+  box-shadow: 0 0 8px var(--warning);
+}
+
+.error {
+  background-color: var(--danger);
+  border-color: rgba(220, 53, 69, 0.4);
+  box-shadow: 0 0 8px var(--danger);
+  animation: pulse-error 2s infinite;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  background-color: #333;
+  color: #fff;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+.wrapper:hover .tooltip {
+  opacity: 1;
+}

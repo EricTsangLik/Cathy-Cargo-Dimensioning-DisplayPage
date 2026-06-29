@@ -1,0 +1,54 @@
+.scanningSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.cameraContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--bg-surface);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-speed), border-color var(--transition-speed);
+}
+
+.cameraTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.cameraView {
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--bg-surface-hover),
+    var(--bg-surface-hover) 10px,
+    var(--border-color) 10px,
+    var(--border-color) 20px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholderText {
+  font-size: 13px;
+  color: var(--text-muted);
+  background-color: var(--bg-surface);
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+@media (max-width: 1024px) {
+  .scanningSection {
+    grid-template-columns: 1fr;
+  }
+}

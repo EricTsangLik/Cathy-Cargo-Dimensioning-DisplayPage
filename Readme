@@ -1,0 +1,134 @@
+# Smart Scanning System - Display Website
+
+## 📌 Project Overview
+This project is a standalone display website extracted from the main CMS. It provides real-time monitoring interfaces for the **Scanning Stations** and the **System Status**. The application is designed to be a read-only dashboard for operational visibility.
+
+## 🛠 Tech Stack & Framework
+The project should be built using the following modern frontend stack:
+* **Framework:** React 18 (with TypeScript)
+* **Build Tool:** Vite
+* **Routing:** React Router DOM (v6)
+* **Styling:** CSS Modules (`.module.css`) for scoped component styling, utilizing CSS Grid and Flexbox for responsive layouts.
+* **Icons:** Phosphor Icons (`@phosphor-icons/react`)
+* **Date/Time Handling:** Native JavaScript `Date` or a lightweight library (e.g., `date-fns`), with custom hooks for real-time clock updates.
+
+---
+
+## 🖥 Page 1: Scanning Stations Page
+**Route:** `/scanning-stations`
+
+This page provides a live view of the current parcel/pallet being scanned, along with a historical feed of recent scans.
+
+### Layout Structure
+* **Header:** Page title ("Scanning Stations").
+* **Main Layout:** A two-column responsive layout (Left Sidebar and Right Content Area).
+
+### Elements
+#### 1. Freight Information (Left Sidebar)
+Displays the details of the most recently scanned item.
+* **Device ID:** Static or dynamic station identifier (e.g., `ST-01`).
+* **Pallet ID:** The unique alphanumeric barcode/ID of the current pallet.
+* **Dimensions:** Broken down into Length, Width, and Height (displayed in `mm`).
+* **Actual Volume:** Calculated or received volume (displayed in `cm³`).
+
+#### 2. Camera Feeds (Top Right Area)
+Displays live or placeholder camera feeds for the scanning process.
+* **Measurement Device Feed:** Video feed/placeholder for the dimensioning camera.
+* **Pallet ID Camera Feed:** Video feed/placeholder for the barcode scanning camera.
+
+#### 3. Recent Scans Table (Bottom Right Area)
+A data table streaming recent parcel scans.
+* **Section Header:** Title ("Recent Scans") alongside the current date.
+* **Export Action:** An "Export CSV" button to download the scan history.
+* **Table Columns:**
+  * **Timestamp:** Time of the scan (e.g., `HH:mm:ss`).
+  * **Pallet ID:** Monospaced alphanumeric ID.
+  * **Dimensions (L×W×H) mm:** Formatted string of dimensions.
+  * **Actual Volume:** Volume in `cm³`.
+  * **Status:** Visual badge indicating the scan result (e.g., `Pass` [Green], `Fail` [Red], `Warning` [Yellow]).
+  * **Pictures:** A download icon button to retrieve images for that specific scan.
+* **Pagination:** Controls to navigate through the scan history (e.g., 20 items per page).
+
+---
+
+## 📊 Page 2: System Status Page
+**Route:** `/status`
+
+This page provides a comprehensive overview of hardware health, database connectivity, and historical uptime logs.
+
+### Layout Structure
+* **Header:** 
+  * Title ("System Status").
+  * Real-time Date and Time display (with Calendar and Clock icons).
+  * Overall Status Badge (e.g., "All Systems Operational").
+
+### Elements
+#### 1. Devices Health Grid
+A grid of cards displaying the real-time status of individual hardware components.
+* **Component Cards** (e.g., Multi-view Cameras, Pallet ID Camera, Measurement Device, Trigger Sensors):
+  * **Header:** Relevant Phosphor Icon and Component Name.
+  * **Status Pill:** Visual indicator (`ONLINE` [Green dot] or `OFFLINE` [Red dot]).
+  * **Details:** Text lines showing IP addresses, firmware versions, or connection details.
+  * **Sub-components (Optional):** A nested list of individual cameras or sensors (e.g., "Cam 1", "Cam 2") with their own UP/DOWN status dots.
+
+#### 2. Database Status Section
+A dedicated card for backend/database health.
+* **Header:** Database Icon and Name.
+* **Status Pill:** `ONLINE` or `OFFLINE`.
+* **Details:** Connection strings, latency, or uptime metrics.
+
+#### 3. Status Log Table
+A historical log tracking the health status of all systems over time.
+* **Section Header:** 
+  * Title ("Status Log") with a subtitle explaining the refresh interval (e.g., "updated every X hours").
+  * Metadata showing "Last update" and "Next update" timestamps.
+* **Table Columns:**
+  * **Date / Time:** Formatted timestamp of the log entry.
+  * **Multi-view Cameras:** Status light indicator.
+  * **Pallet ID Camera:** Status light indicator.
+  * **Measurement Device:** Status light indicator.
+  * **Trigger Sensors:** Status light indicator.
+  * **Database Status:** Status light indicator.
+* **Status Lights:** Circular indicators (Green for `OK`, Red/Yellow for issues). If a component is offline, hovering over the light should display a tooltip detailing which specific sub-components failed (e.g., "Offline: Cam 2, Cam 4").
+
+---
+
+## 📦 Core Data Interfaces (TypeScript)
+To help the AI generate accurate props and state, use these core interfaces:
+
+```typescript
+export type HealthStatus = 'ok' | 'warning' | 'error';
+
+export interface Scan {
+  id: string;             // Pallet ID
+  timestamp: Date;
+  dims: string;           // e.g., "120 × 80 × 100"
+  vol: string;            // e.g., "0.96"
+  status: HealthStatus;
+}
+
+export interface SystemComponentStatus {
+  id: string;
+  name: string;
+  icon: string;           // Maps to a Phosphor Icon
+  indicator: 'Online' | 'Offline';
+  status: HealthStatus;
+  details: string[];      // e.g., ["IP: 192.168.1.100", "v2.1.0"]
+  cameras?: { 
+    id: string; 
+    label: string; 
+    status: HealthStatus 
+  }[];
+}
+
+export interface StatusLog {
+  id: string;
+  timestamp: Date;
+  multiViewStatus: HealthStatus;
+  palletIdStatus: HealthStatus;
+  measurementStatus: HealthStatus;
+  triggerSensorsStatus: HealthStatus;
+  databaseStatus: HealthStatus;
+  offlineCameras?: string[];
+  offlineSensors?: string[];
+}
