@@ -15,7 +15,9 @@ export default function CompactHealth({ components, database }: CompactHealthPro
       {components.map((component) => (
         <div key={component.id} className={styles.healthItem}>
           <ComponentIcon name={component.icon} size={18} />
-          <span className={styles.name}>{component.name}</span>
+          <span className={styles.name} title={component.name}>
+            {component.name}
+          </span>
           <StatusPill indicator={component.indicator} />
         </div>
       ))}

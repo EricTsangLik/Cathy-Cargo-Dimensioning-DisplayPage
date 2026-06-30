@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#17202a"/>
+  <rect x="86" y="78" width="1108" height="564" rx="18" fill="hsl(284 76% 48%)"/>
+  <rect x="126" y="118" width="1028" height="484" rx="10" fill="#e8edf3"/>
+  <g transform="translate(210 180)">
+    <rect x="0" y="0" width="860" height="352" rx="18" fill="#fff"/>
+    <text x="48" y="84" fill="#1a1a1a" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="700">PALLET ID</text>
+    <text x="48" y="154" fill="hsl(34 76% 48%)" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="800">PLT-DEMO-0012</text>
+    <g fill="#111827"><rect x="52" y="218" width="26" height="82"/><rect x="94" y="218" width="42" height="82"/><rect x="136" y="218" width="18" height="82"/><rect x="178" y="218" width="34" height="82"/><rect x="220" y="218" width="10" height="82"/><rect x="262" y="218" width="26" height="82"/><rect x="304" y="218" width="42" height="82"/><rect x="346" y="218" width="18" height="82"/><rect x="388" y="218" width="34" height="82"/><rect x="430" y="218" width="10" height="82"/><rect x="472" y="218" width="26" height="82"/><rect x="514" y="218" width="42" height="82"/><rect x="556" y="218" width="18" height="82"/><rect x="598" y="218" width="34" height="82"/><rect x="640" y="218" width="10" height="82"/><rect x="682" y="218" width="26" height="82"/><rect x="724" y="218" width="42" height="82"/><rect x="766" y="218" width="18" height="82"/></g>
+    <text x="48" y="330" fill="#6c757d" font-family="Inter, Arial, sans-serif" font-size="20">OCR image scan #12</text>
+  </g>
+  <g fill="none" stroke="#28a745" stroke-width="8" opacity="0.9">
+    <path d="M172 150h120M172 150v90"/>
+    <path d="M1108 150h-120M1108 150v90"/>
+    <path d="M172 570h120M172 570v-90"/>
+    <path d="M1108 570h-120M1108 570v-90"/>
+  </g>
+</svg>

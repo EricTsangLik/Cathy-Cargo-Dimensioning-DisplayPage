@@ -22,6 +22,7 @@ export interface CameraFeed {
   id: string;
   title: string;
   path?: string;
+  fallbackPath?: string;
 }
 
 export interface SystemComponentStatus {
@@ -62,6 +63,9 @@ export interface MeasurementRecord {
   scanner_name: string;
   images: MeasurementImage[];
   created_at: string;
+  length?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface MeasurementSocketEvent {

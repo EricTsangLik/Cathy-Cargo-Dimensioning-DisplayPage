@@ -14,6 +14,30 @@ The project should be built using the following modern frontend stack:
 
 ---
 
+## Local Mock Backend
+Run the built-in mock backend from this repo when the real scanning station backend is not available:
+
+```sh
+npm run mock:backend
+```
+
+It serves the frontend-compatible endpoints on `http://localhost:8001` and publishes measurement/station-health WebSocket events every 5 seconds:
+
+* `GET /measurements/recent?limit=20`
+* `GET /station-health/current`
+* `WS /ws/measurements`
+* `WS /ws/station-health`
+
+Demo image paths are served by the mock backend. Each mock measurement points to a scan-specific OCR/depth image path, so the image panels visibly update and the image content matches the current pallet ID.
+
+In a second terminal, run the frontend:
+
+```sh
+npm run dev
+```
+
+---
+
 ## 🖥 Page 1: Scanning Stations Page
 **Route:** `/scanning-stations`
 

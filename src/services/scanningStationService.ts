@@ -14,6 +14,9 @@ import type {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '';
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL?.replace(/\/$/, '');
 const DEFAULT_STATION_ID = 'STATION-01';
+const DUMMY_DEPTH_IMAGE_PATH = '/dummy-measurement.svg';
+const DUMMY_OCR_IMAGE_PATH = '/dummy-pallet-id.svg';
+const MOCK_STATUSES: Array<'up' | 'down'> = ['up', 'up', 'up', 'up', 'down'];
 
 function apiPath(path: string): string {
   return `${API_BASE_URL}${path}`;
@@ -47,6 +50,7 @@ function getIndicator(status: HealthStatus): 'Online' | 'Offline' {
 function imageUrl(path?: string): string | undefined {
   if (!path) return undefined;
   if (/^(https?:)?\/\//.test(path) || path.startsWith('data:')) return path;
+  if (path.startsWith('/dummy-')) return path;
   return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
 }
 
@@ -109,15 +113,23 @@ export function mapMeasurementToFreight(
     ...previous,
     deviceId: measurement.scanner_name || `Scanner-${measurement.scanner_id}`,
     palletId: measurement.palette_id,
+    length: measurement.length ?? previous.length,
+    width: measurement.width ?? previous.width,
+    height: measurement.height ?? previous.height,
     actualVolume: measurement.measurement_result * 1000,
   };
 }
 
 export function mapMeasurementToScan(measurement: MeasurementRecord): Scan {
+  const dims =
+    measurement.length && measurement.width && measurement.height
+      ? `${measurement.length} × ${measurement.width} × ${measurement.height}`
+      : '-';
+
   return {
     id: measurement.palette_id,
     timestamp: new Date(measurement.created_at),
-    dims: '-',
+    dims,
     vol: measurement.measurement_result.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -132,12 +144,14 @@ export function mapMeasurementToFeeds(measurement?: MeasurementRecord): CameraFe
     {
       id: 'depth',
       title: 'Measurement Device Feed',
-      path: measurement ? findImagePath(measurement, 'depth') : undefined,
+      path: measurement ? findImagePath(measurement, 'depth') : DUMMY_DEPTH_IMAGE_PATH,
+      fallbackPath: DUMMY_DEPTH_IMAGE_PATH,
     },
     {
       id: 'ocr',
       title: 'Pallet ID Camera Feed',
-      path: measurement ? findImagePath(measurement, 'ocr') : undefined,
+      path: measurement ? findImagePath(measurement, 'ocr') : DUMMY_OCR_IMAGE_PATH,
+      fallbackPath: DUMMY_OCR_IMAGE_PATH,
     },
   ];
 }
@@ -235,3 +249,66 @@ export function selectStationHealth(
   return statuses.find((status) => status.station_id === stationId) ?? statuses[0];
 }
 
+export function createMockMeasurement(sequence: number): MeasurementRecord {
+  const now = new Date();
+  const length = 1100 + (sequence % 5) * 25;
+  const width = 760 + (sequence % 4) * 20;
+  const height = 920 + (sequence % 6) * 18;
+  const volumeCm3 = (length * width * height) / 1000;
+  const ocrImagePath = `/mock-images/ocr/${sequence}.svg`;
+  const depthImagePath = `/mock-images/depth/${sequence}.svg`;
+
+  return {
+    id: sequence,
+    palette_id: `PLT-DEMO-${String(sequence).padStart(4, '0')}`,
+    measurement_result: volumeCm3,
+    scanner_id: 1,
+    scanner_name: 'ST-01',
+    length,
+    width,
+    height,
+    images: [
+      {
+        id: sequence * 2,
+        path: ocrImagePath,
+        image_type: 'OCR',
+        created_at: now.toISOString(),
+      },
+      {
+        id: sequence * 2 + 1,
+        path: depthImagePath,
+        image_type: 'Depth',
+        created_at: now.toISOString(),
+      },
+    ],
+    created_at: now.toISOString(),
+  };
+}
+
+export function createMockStationHealth(sequence: number): StationHealthStatus {
+  const now = new Date().toISOString();
+  const pickedStatus = MOCK_STATUSES[sequence % MOCK_STATUSES.length];
+
+  return {
+    id: sequence,
+    station_id: DEFAULT_STATION_ID,
+    rgb_camera_1_status: 'up',
+    rgb_camera_2_status: pickedStatus,
+    rgb_camera_3_status: 'up',
+    rgb_camera_4_status: 'up',
+    rgb_camera_5_status: 'up',
+    rgb_camera_6_status: 'up',
+    rgb_camera_7_status: 'up',
+    rgb_camera_8_status: 'up',
+    depth_camera_status: 'up',
+    ocr_camera_status: 'up',
+    trigger_sensor_1_status: 'up',
+    trigger_sensor_2_status: 'up',
+    trigger_sensor_3_status: pickedStatus,
+    database_status: 'up',
+    log_type: 'periodic',
+    description: pickedStatus === 'up' ? 'all monitored devices are up' : 'demo status change',
+    captured_at: now,
+    created_at: now,
+  };
+}

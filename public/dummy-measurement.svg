@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Dummy measurement depth image</title>
+  <desc id="desc">A placeholder depth-map style image for the measurement device feed.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102235"/>
+      <stop offset="0.5" stop-color="#1f5f7a"/>
+      <stop offset="1" stop-color="#f2b84b"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6df7d"/>
+      <stop offset="1" stop-color="#2796b6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <g opacity="0.22" stroke="#ffffff" stroke-width="2">
+    <path d="M0 120H1280M0 240H1280M0 360H1280M0 480H1280M0 600H1280"/>
+    <path d="M160 0V720M320 0V720M480 0V720M640 0V720M800 0V720M960 0V720M1120 0V720"/>
+  </g>
+  <g transform="translate(310 170)">
+    <polygon points="210,120 560,45 785,175 430,275" fill="#0b1c2b" opacity="0.38"/>
+    <polygon points="215,110 560,35 795,170 435,270" fill="url(#box)"/>
+    <polygon points="215,110 435,270 435,485 215,315" fill="#1b6f95"/>
+    <polygon points="435,270 795,170 795,395 435,485" fill="#ec9d42"/>
+    <polygon points="215,110 560,35 795,170 435,270" fill="#f6d96a"/>
+    <g fill="none" stroke="#ffffff" stroke-width="8" opacity="0.82">
+      <path d="M270 152 440 260 440 445"/>
+      <path d="M560 78 725 173"/>
+      <path d="M520 292 730 235"/>
+    </g>
+  </g>
+  <g fill="#ffffff" font-family="Inter, Arial, sans-serif">
+    <text x="58" y="74" font-size="32" font-weight="700">Measurement Device Feed</text>
+    <text x="58" y="118" font-size="22" opacity="0.76">Dummy depth image</text>
+    <text x="58" y="660" font-size="20" opacity="0.7">L 1200 mm  /  W 800 mm  /  H 1000 mm</text>
+  </g>
+</svg>

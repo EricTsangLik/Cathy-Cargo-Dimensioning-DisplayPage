@@ -1,6 +1,6 @@
 .healthStrip {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 12px;
   background-color: var(--bg-surface);
   padding: 16px 20px;
@@ -17,7 +17,6 @@
   background-color: var(--bg-body);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  flex: 1 1 200px;
   min-width: 0;
 }
 
@@ -31,13 +30,12 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 768px) {
-  .healthItem {
-    flex: 1 1 100%;
+  .healthStrip {
+    grid-template-columns: 1fr;
   }
 }
