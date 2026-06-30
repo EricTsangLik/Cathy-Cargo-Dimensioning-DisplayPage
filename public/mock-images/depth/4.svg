@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101827"/>
+      <stop offset="0.52" stop-color="hsl(188 76% 48%)"/>
+      <stop offset="1" stop-color="hsl(48 76% 48%)"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <g opacity="0.22" stroke="#fff" stroke-width="2">
+    <path d="M0 120H1280M0 240H1280M0 360H1280M0 480H1280M0 600H1280"/>
+    <path d="M160 0V720M320 0V720M480 0V720M640 0V720M800 0V720M960 0V720M1120 0V720"/>
+  </g>
+  <g transform="translate(300 150)">
+    <polygon points="230,120 560,44 800,178 448,282" fill="#06111d" opacity="0.42"/>
+    <polygon points="230,110 560,34 800,170 448,272" fill="hsl(298 76% 48%)"/>
+    <polygon points="230,110 448,272 448,500 230,326" fill="hsl(188 76% 48%)"/>
+    <polygon points="448,272 800,170 800,404 448,500" fill="hsl(48 76% 48%)"/>
+    <g fill="none" stroke="#fff" stroke-width="8" opacity="0.82">
+      <path d="M286 154 452 262 452 458"/>
+      <path d="M560 78 728 172"/>
+      <path d="M534 294 740 236"/>
+    </g>
+  </g>
+  <g fill="#fff" font-family="Inter, Arial, sans-serif">
+    <text x="58" y="74" font-size="32" font-weight="700">Measurement Device Feed</text>
+    <text x="58" y="118" font-size="22" opacity="0.78">Depth image scan #4</text>
+    <text x="58" y="660" font-size="22" opacity="0.86">L 1200 mm / W 760 mm / H 992 mm</text>
+  </g>
+</svg>
