@@ -4,9 +4,11 @@ import {
   mockDatabase,
   mockFreightInfo,
   mockScans,
-} from '@/data/mockData';
+} from '@/mocks';
 import type { DatabaseStatus, FreightInfo, MeasurementRecord, Scan, SystemComponentStatus } from '@/types';
 import {
+  createMockMeasurement,
+  createMockStationHealth,
   fetchCurrentStationHealth,
   fetchRecentMeasurements,
   getMeasurementWebSocketUrl,
@@ -21,7 +23,8 @@ import {
 } from '@/services/scanningStationService';
 
 const MAX_SCANS = 100;
-const RECONNECT_DELAY_MS = 3000;
+const LIVE_UPDATE_INTERVAL_MS = 5000;
+const RECONNECT_DELAY_MS = 15000;
 
 type SocketState = 'connecting' | 'connected' | 'offline';
 
@@ -30,14 +33,50 @@ export function useScanningStationRealtime() {
   const [components, setComponents] = useState<SystemComponentStatus[]>(mockComponents);
   const [database, setDatabase] = useState<DatabaseStatus>(mockDatabase);
   const [scans, setScans] = useState<Scan[]>(mockScans);
-  const [latestMeasurement, setLatestMeasurement] = useState<MeasurementRecord>();
+  const [latestMeasurement, setLatestMeasurement] = useState<MeasurementRecord>(() => createMockMeasurement(1));
   const [measurementSocketState, setMeasurementSocketState] = useState<SocketState>('connecting');
   const [stationSocketState, setStationSocketState] = useState<SocketState>('connecting');
   const freightRef = useRef(freight);
+  const measurementSocketStateRef = useRef(measurementSocketState);
+  const stationSocketStateRef = useRef(stationSocketState);
+  const mockSequenceRef = useRef(2);
 
   useEffect(() => {
     freightRef.current = freight;
   }, [freight]);
+
+  useEffect(() => {
+    measurementSocketStateRef.current = measurementSocketState;
+  }, [measurementSocketState]);
+
+  useEffect(() => {
+    stationSocketStateRef.current = stationSocketState;
+  }, [stationSocketState]);
+
+  useEffect(() => {
+    const applyMeasurement = (measurement: MeasurementRecord) => {
+      setLatestMeasurement(measurement);
+      setFreight(mapMeasurementToFreight(measurement, freightRef.current));
+      setScans((current) => [mapMeasurementToScan(measurement), ...current].slice(0, MAX_SCANS));
+    };
+
+    const timer = window.setInterval(() => {
+      const nextSequence = mockSequenceRef.current;
+      mockSequenceRef.current += 1;
+
+      if (measurementSocketStateRef.current !== 'connected') {
+        applyMeasurement(createMockMeasurement(nextSequence));
+      }
+
+      if (stationSocketStateRef.current !== 'connected') {
+        const mapped = mapStationHealthToComponents(createMockStationHealth(nextSequence));
+        setComponents(mapped.components);
+        setDatabase(mapped.database);
+      }
+    }, LIVE_UPDATE_INTERVAL_MS);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +90,7 @@ export function useScanningStationRealtime() {
         setScans(measurements.map(mapMeasurementToScan));
       })
       .catch(() => {
-        if (!cancelled) setMeasurementSocketState('offline');
+        // Keep socket state separate from HTTP bootstrap; the WebSocket can still recover.
       });
 
     fetchCurrentStationHealth()
@@ -64,7 +103,7 @@ export function useScanningStationRealtime() {
         setDatabase(mapped.database);
       })
       .catch(() => {
-        if (!cancelled) setStationSocketState('offline');
+        // Keep socket state separate from HTTP bootstrap; the WebSocket can still recover.
       });
 
     return () => {
@@ -78,7 +117,7 @@ export function useScanningStationRealtime() {
     let socket: WebSocket | undefined;
 
     const connect = () => {
-      setMeasurementSocketState('connecting');
+      setMeasurementSocketState((current) => (current === 'offline' ? current : 'connecting'));
       socket = new WebSocket(getMeasurementWebSocketUrl());
 
       socket.onopen = () => setMeasurementSocketState('connected');
@@ -115,7 +154,7 @@ export function useScanningStationRealtime() {
     let socket: WebSocket | undefined;
 
     const connect = () => {
-      setStationSocketState('connecting');
+      setStationSocketState((current) => (current === 'offline' ? current : 'connecting'));
       socket = new WebSocket(getStationHealthWebSocketUrl());
 
       socket.onopen = () => setStationSocketState('connected');
@@ -160,4 +199,3 @@ export function useScanningStationRealtime() {
     },
   };
 }
-
