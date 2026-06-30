@@ -3,8 +3,18 @@ import type { CameraFeed } from '@/types';
 import styles from './CameraFeeds.module.css';
 
 const DEFAULT_FEEDS: CameraFeed[] = [
-  { id: 'measurement', title: 'Measurement Device Feed' },
-  { id: 'pallet', title: 'Pallet ID Camera Feed' },
+  {
+    id: 'measurement',
+    title: 'Measurement Device Feed',
+    path: '/dummy-measurement.svg',
+    fallbackPath: '/dummy-measurement.svg',
+  },
+  {
+    id: 'pallet',
+    title: 'Pallet ID Camera Feed',
+    path: '/dummy-pallet-id.svg',
+    fallbackPath: '/dummy-pallet-id.svg',
+  },
 ];
 
 interface CameraFeedsProps {
@@ -17,20 +27,20 @@ export default function CameraFeeds({ feeds = DEFAULT_FEEDS }: CameraFeedsProps)
   return (
     <div className={styles.scanningSection}>
       {feeds.map((feed) => {
-        const hasLoadablePath = feed.path && !failedPaths.has(feed.path);
+        const displayPath =
+          feed.path && !failedPaths.has(feed.path) ? feed.path : feed.fallbackPath;
 
         return (
           <div key={feed.id} className={styles.cameraContainer}>
             <h4 className={styles.cameraTitle}>{feed.title}</h4>
             <div className={styles.cameraView}>
-              {hasLoadablePath ? (
+              {displayPath ? (
                 <img
                   className={styles.feedImage}
-                  src={feed.path}
+                  src={displayPath}
                   alt={feed.title}
                   onError={() => {
-                    if (!feed.path) return;
-                    setFailedPaths((current) => new Set(current).add(feed.path as string));
+                    setFailedPaths((current) => new Set(current).add(displayPath));
                   }}
                 />
               ) : (
@@ -38,9 +48,9 @@ export default function CameraFeeds({ feeds = DEFAULT_FEEDS }: CameraFeedsProps)
                   {feed.path ? 'Image path received' : 'No feed available'}
                 </span>
               )}
-              {feed.path ? (
-                <span className={styles.pathLabel} title={feed.path}>
-                  {feed.path}
+              {displayPath ? (
+                <span className={styles.pathLabel} title={feed.path ?? displayPath}>
+                  {feed.path ?? displayPath}
                 </span>
               ) : null}
             </div>
