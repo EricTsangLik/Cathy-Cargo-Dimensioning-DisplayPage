@@ -23,10 +23,15 @@ npm run mock:backend
 
 It serves the frontend-compatible endpoints on `http://localhost:8001` and publishes measurement/station-health WebSocket events every 5 seconds:
 
+* `GET /api/v1/pallet-measurement-records?station_id=STATION-01&limit=20`
+* `GET /api/v1/pallet-scanning-station-statuses/STATION-01/latest`
+* `GET /api/v1/scanning-station-configurations/STATION-01/latest`
 * `GET /measurements/recent?limit=20`
 * `GET /station-health/current`
 * `WS /ws/measurements`
 * `WS /ws/station-health`
+
+For ATPS-22, the frontend loads the initial scanning station data through the CMS-style `/api/v1` HTTP endpoints, then keeps the existing live WebSocket updates for realtime display testing.
 
 Demo image paths are served by the mock backend. Each mock measurement points to a scan-specific OCR/depth image path, so the image panels visibly update and the image content matches the current pallet ID.
 

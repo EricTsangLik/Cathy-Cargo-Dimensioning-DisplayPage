@@ -68,12 +68,37 @@ export interface MeasurementRecord {
   height?: number;
 }
 
+export interface ApiPalletCaptureImage {
+  id: number;
+  measurement_record_id: number;
+  station_id: string;
+  pallet_id: string;
+  timestamp: string;
+  path: string;
+  image_type: string;
+  created_at: string;
+}
+
+export interface ApiPalletMeasurementRecord {
+  id: number;
+  station_id: string;
+  pallet_id: string;
+  timestamp: string;
+  actual_volume: number;
+  height: number;
+  width: number;
+  length: number;
+  status_name: string;
+  image_paths: ApiPalletCaptureImage[];
+  created_at: string;
+}
+
 export interface MeasurementSocketEvent {
   type: 'measurement.created';
   measurement: MeasurementRecord;
 }
 
-export type StationDeviceStatus = 'up' | 'down';
+export type StationDeviceStatus = 'up' | 'down' | 'unknown';
 export type StationHealthLogType = 'change' | 'periodic';
 
 export interface StationHealthStatus {
@@ -102,6 +127,14 @@ export interface StationHealthStatus {
 export interface StationHealthSocketEvent {
   type: 'station_health.changed';
   station_health: StationHealthStatus;
+}
+
+export interface ApiScanningStationConfiguration {
+  id: number;
+  station_id: string;
+  config_value: number;
+  captured_at: string;
+  created_at: string;
 }
 
 export interface StatusLog {

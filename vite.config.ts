@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      '/api/v1': 'http://localhost:8001',
       '/measurements': 'http://localhost:8001',
       '/station-health': 'http://localhost:8001',
       '/mock-images': 'http://localhost:8001',

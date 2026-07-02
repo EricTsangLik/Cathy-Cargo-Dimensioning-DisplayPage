@@ -10,6 +10,7 @@ const stationHealthClients = new Set();
 const measurements = [];
 let sequence = 1;
 let latestStationHealth = createStationHealth(sequence);
+let latestStationConfiguration = createStationConfiguration(sequence);
 
 function createMeasurement(id) {
   const now = new Date();
@@ -74,6 +75,45 @@ function createStationHealth(id) {
     description: isDemoIssue ? 'demo camera/sensor status change' : 'all monitored devices are up',
     captured_at: now,
     created_at: now,
+  };
+}
+
+function createStationConfiguration(id) {
+  const now = new Date().toISOString();
+
+  return {
+    id,
+    station_id: STATION_ID,
+    config_value: 1,
+    captured_at: now,
+    created_at: now,
+  };
+}
+
+function createApiMeasurementRecord(measurement) {
+  const timestamp = measurement.created_at;
+
+  return {
+    id: measurement.id,
+    station_id: STATION_ID,
+    pallet_id: measurement.palette_id,
+    timestamp,
+    actual_volume: measurement.measurement_result * 1000,
+    height: measurement.height,
+    width: measurement.width,
+    length: measurement.length,
+    status_name: 'pass',
+    image_paths: measurement.images.map((image) => ({
+      id: image.id,
+      measurement_record_id: measurement.id,
+      station_id: STATION_ID,
+      pallet_id: measurement.palette_id,
+      timestamp,
+      path: image.path,
+      image_type: image.image_type,
+      created_at: image.created_at,
+    })),
+    created_at: measurement.created_at,
   };
 }
 
@@ -256,6 +296,7 @@ function acceptWebSocket(request, socket, clients) {
 function publishNext() {
   const measurement = createMeasurement(sequence);
   latestStationHealth = createStationHealth(sequence);
+  latestStationConfiguration = createStationConfiguration(sequence);
   measurements.unshift(measurement);
   measurements.splice(50);
 
@@ -277,6 +318,7 @@ function publishNext() {
 for (let i = 0; i < 20; i += 1) {
   measurements.unshift(createMeasurement(sequence));
   latestStationHealth = createStationHealth(sequence);
+  latestStationConfiguration = createStationConfiguration(sequence);
   sequence += 1;
 }
 
@@ -296,6 +338,18 @@ const server = http.createServer(async (request, response) => {
   if (request.method === 'GET' && url.pathname === '/measurements/recent') {
     const limit = Number(url.searchParams.get('limit') ?? 20);
     sendJson(response, 200, measurements.slice(0, limit));
+    return;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/v1/pallet-measurement-records') {
+    const limit = Number(url.searchParams.get('limit') ?? 20);
+    const stationId = url.searchParams.get('station_id');
+    const records = measurements
+      .map(createApiMeasurementRecord)
+      .filter((record) => !stationId || record.station_id === stationId)
+      .slice(0, limit);
+
+    sendJson(response, 200, records);
     return;
   }
 
@@ -329,6 +383,22 @@ const server = http.createServer(async (request, response) => {
 
   if (request.method === 'GET' && url.pathname === '/station-health/current') {
     sendJson(response, 200, [latestStationHealth]);
+    return;
+  }
+
+  if (
+    request.method === 'GET' &&
+    url.pathname === `/api/v1/pallet-scanning-station-statuses/${STATION_ID}/latest`
+  ) {
+    sendJson(response, 200, latestStationHealth);
+    return;
+  }
+
+  if (
+    request.method === 'GET' &&
+    url.pathname === `/api/v1/scanning-station-configurations/${STATION_ID}/latest`
+  ) {
+    sendJson(response, 200, latestStationConfiguration);
     return;
   }
 

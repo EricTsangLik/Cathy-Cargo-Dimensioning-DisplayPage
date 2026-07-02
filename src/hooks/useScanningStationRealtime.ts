@@ -10,6 +10,7 @@ import {
   createMockMeasurement,
   createMockStationHealth,
   fetchCurrentStationHealth,
+  fetchLatestStationConfiguration,
   fetchRecentMeasurements,
   getMeasurementWebSocketUrl,
   getStationHealthWebSocketUrl,
@@ -105,6 +106,10 @@ export function useScanningStationRealtime() {
       .catch(() => {
         // Keep socket state separate from HTTP bootstrap; the WebSocket can still recover.
       });
+
+    fetchLatestStationConfiguration().catch(() => {
+      // Configuration is loaded from the CMS API for ATPS-22, but the current UI has no config field yet.
+    });
 
     return () => {
       cancelled = true;

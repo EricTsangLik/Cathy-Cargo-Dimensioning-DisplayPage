@@ -1,4 +1,6 @@
 import type {
+  ApiPalletMeasurementRecord,
+  ApiScanningStationConfiguration,
   CameraFeed,
   DatabaseStatus,
   FreightInfo,
@@ -13,7 +15,7 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '';
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL?.replace(/\/$/, '');
-const DEFAULT_STATION_ID = 'STATION-01';
+const DEFAULT_STATION_ID = import.meta.env.VITE_STATION_ID ?? 'STATION-01';
 const DUMMY_DEPTH_IMAGE_PATH = '/dummy-measurement.svg';
 const DUMMY_OCR_IMAGE_PATH = '/dummy-pallet-id.svg';
 const MOCK_STATUSES: Array<'up' | 'down'> = ['up', 'up', 'up', 'up', 'down'];
@@ -36,11 +38,13 @@ function wsPath(path: string): string {
 }
 
 function toHealthStatus(status: StationHealthStatus[keyof StationHealthStatus]): HealthStatus {
+  if (status === 'unknown') return 'warning';
   return status === 'up' ? 'ok' : 'error';
 }
 
 function getGroupStatus(statuses: HealthStatus[]): HealthStatus {
-  return statuses.some((status) => status === 'error') ? 'error' : 'ok';
+  if (statuses.some((status) => status === 'error')) return 'error';
+  return statuses.some((status) => status === 'warning') ? 'warning' : 'ok';
 }
 
 function getIndicator(status: HealthStatus): 'Online' | 'Offline' {
@@ -65,18 +69,61 @@ function findImagePath(measurement: MeasurementRecord, type: 'ocr' | 'depth'): s
   return type === 'ocr' ? imageUrl(images[0]?.path) : imageUrl(images[1]?.path);
 }
 
-export async function fetchRecentMeasurements(limit = 20): Promise<MeasurementRecord[]> {
-  const response = await fetch(apiPath(`/measurements/recent?limit=${limit}`));
+function normalizeMeasurementRecord(record: ApiPalletMeasurementRecord | MeasurementRecord): MeasurementRecord {
+  if ('pallet_id' in record) {
+    return {
+      id: record.id,
+      palette_id: record.pallet_id,
+      measurement_result: record.actual_volume / 1000,
+      scanner_id: 1,
+      scanner_name: record.station_id,
+      length: record.length,
+      width: record.width,
+      height: record.height,
+      images: (record.image_paths ?? []).map((image) => ({
+        id: image.id,
+        path: image.path,
+        image_type: image.image_type,
+        created_at: image.created_at,
+      })),
+      created_at: record.timestamp ?? record.created_at,
+    };
+  }
+
+  return record;
+}
+
+export async function fetchRecentMeasurements(
+  limit = 20,
+  stationId = DEFAULT_STATION_ID,
+): Promise<MeasurementRecord[]> {
+  const params = new URLSearchParams({
+    station_id: stationId,
+    limit: String(limit),
+  });
+  const response = await fetch(apiPath(`/api/v1/pallet-measurement-records?${params.toString()}`));
   if (!response.ok) {
     throw new Error('Failed to load recent measurements');
   }
-  return response.json();
+  const records = (await response.json()) as Array<ApiPalletMeasurementRecord | MeasurementRecord>;
+  return records.map(normalizeMeasurementRecord);
 }
 
-export async function fetchCurrentStationHealth(): Promise<StationHealthStatus[]> {
-  const response = await fetch(apiPath('/station-health/current'));
+export async function fetchCurrentStationHealth(stationId = DEFAULT_STATION_ID): Promise<StationHealthStatus[]> {
+  const response = await fetch(apiPath(`/api/v1/pallet-scanning-station-statuses/${stationId}/latest`));
   if (!response.ok) {
     throw new Error('Failed to load current station health');
+  }
+  const status = (await response.json()) as StationHealthStatus;
+  return [status];
+}
+
+export async function fetchLatestStationConfiguration(
+  stationId = DEFAULT_STATION_ID,
+): Promise<ApiScanningStationConfiguration> {
+  const response = await fetch(apiPath(`/api/v1/scanning-station-configurations/${stationId}/latest`));
+  if (!response.ok) {
+    throw new Error('Failed to load latest station configuration');
   }
   return response.json();
 }
